@@ -1,0 +1,26 @@
+﻿@model List<Department>
+<table class="table table-border table-hover">
+    <tr>
+        <th>Id</th>
+        <th>Departmen Name</th>
+        <th>Manager</th>
+        <th></th>
+
+
+    </tr>
+    @foreach (Department department in Model)
+    {
+     
+        <tr>
+            <td>@department.Id</td>
+            <td>@department.Name</td>
+            <td>@department.ManagerName</td>
+            <td><a href="/Department/GetStudents/@department.Id" class="btn btn-outline-success">Show @department.Name Students</a></td>
+
+
+        </tr>
+
+    }
+
+
+</table>

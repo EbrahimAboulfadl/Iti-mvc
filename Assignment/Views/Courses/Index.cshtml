@@ -1,0 +1,23 @@
+﻿@model List<Course>
+<table class="table table-border table-hover">
+    <tr>
+        <th>Course Name</th>
+        <th>Grade</th>
+        <th>Min Grade</th>
+        <th>Dpartment Name</th>
+
+
+    </tr>
+    @foreach (var course in Model)
+    {
+        <tr>
+            <td>@course.Name</td>
+            <td>@course.Grade</td>
+            <td>@course.MinGrade</td>
+            <td>@course.Department.Name</td>
+        </tr>
+
+    }
+
+
+</table>

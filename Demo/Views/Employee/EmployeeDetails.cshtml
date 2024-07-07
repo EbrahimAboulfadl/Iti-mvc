@@ -1,0 +1,21 @@
+﻿@{
+    Employee employee = Model;
+    string image = employee.ImagePath ?? "default.png";
+}
+<div class="container" style="display: flex ; flex-direction:column;  align-items: center;
+  justify-content: center;">
+	<div class="card" style="width:400px;  align-items: center;
+  justify-content: center; text-align : center">
+		<img class="card-img-top" style="height:150px;width:150px;border-radius:50%; object-fit:cover" src="/images/@image" alt="Card image">
+		<div class="card-body">
+			<h4 class="card-title">@employee.Name</h4>
+			<p class="card-text">@employee.Salary $ (@employee.Type)</p>
+			<p class="card-text">Hiring Date: (@employee.HiringDate)</p>
+		</div>
+	</div>
+	<br />
+	<a href="/Employee/GetAll" class="btn btn-outline-danger">Back To Employees List</a>
+
+</div>
+
+

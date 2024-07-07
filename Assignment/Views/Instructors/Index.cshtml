@@ -1,0 +1,24 @@
+﻿@using Assignment.Models.Entities
+@model  List<Instructor>
+<table class="table table-border table-hover">
+    <tr>
+        <th>Employee</th>
+        <th>Dpartment Name</th>
+        <th>Salary</th>
+        <th>Address</th>
+
+
+    </tr>
+    @foreach (var instructor in Model)
+    {
+        <tr>
+            <td>@instructor.Name</td>
+            <td>@instructor.Department.Name</td>
+            <td>@instructor.Salary</td>
+            <td>@instructor.Address</td>
+        </tr>
+
+    }
+
+
+</table>
