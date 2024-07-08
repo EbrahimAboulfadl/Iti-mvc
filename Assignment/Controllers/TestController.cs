@@ -15,5 +15,10 @@ namespace Assignment.Controllers
 
             return Content($"{t}");
         }
+
+        public IActionResult TwoArgs(int id, string name) {
+
+            return Content($"{id} , {name}");
+        }
     }
 }

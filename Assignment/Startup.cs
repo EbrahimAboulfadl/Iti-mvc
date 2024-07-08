@@ -48,7 +48,13 @@ namespace Assignment
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Instructors}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });    
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "twoargs",
+                    pattern: "{controller=Home}/{action=Index}/{id?}/{name?}");
             });
         }
     }

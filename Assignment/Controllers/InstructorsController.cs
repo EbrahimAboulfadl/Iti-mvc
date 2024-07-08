@@ -1,5 +1,6 @@
 ﻿using Assignment.Models;
 using Assignment.Models.Entities;
+using Assignment.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -35,6 +36,26 @@ namespace Assignment.Controllers
             else { return View("Error",new ErrorViewModel());
             
             }
+        }
+
+        public IActionResult NewInstructor() {
+            List<DepartmentSelectionViewModel> departments = new List<DepartmentSelectionViewModel>();
+            using (var context = new AppDbContext()) { 
+            departments = context.Departments.Select(x => new DepartmentSelectionViewModel() {DepartmentId = x.Id ,DepartmentName = x.Name }).ToList();
+            
+            }
+        return View(departments);
+        }
+        public IActionResult SaveInstuctor(string name, decimal salary, string address, int departmentId) { 
+        
+        Instructor instructor = new Instructor() { Name = name , Address = address ,Salary = salary, DepartmentId = departmentId};
+
+            using (var context = new AppDbContext()) {
+            context.Instructors.Add(instructor);
+            context.SaveChanges();            
+            }
+            return RedirectToAction("Index");
+        
         }
     }
 }

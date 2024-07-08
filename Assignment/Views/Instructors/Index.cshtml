@@ -1,5 +1,14 @@
-﻿@using Assignment.Models.Entities
-@model  List<Instructor>
+﻿@model List<Instructor>
+@{
+    ViewData["Title"] = "Instructors";
+}
+<div class="container">
+    <div class="row align-items-start">
+    <h1 class="col-10">Instructors</h1>
+        <a type="button" class=" col btn btn-success" href="/instructors/newInstructor">New Instructor</a>
+    </div>
+</div>
+
 <table class="table table-border table-hover">
     <tr>
         <th>Employee</th>
@@ -22,3 +31,4 @@
 
 
 </table>
+
