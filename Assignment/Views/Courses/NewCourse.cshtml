@@ -1,0 +1,31 @@
+﻿@model List<DepartmentSelectionViewModel>
+<h1>Add New Course</h1>
+<form action="/Courses/SaveNewCourse" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="inputName">Course Name</label>
+            <input name="name" class="form-control" id="inputName" placeholder="Course Name">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="inputGrade">Grade</label>
+            <input name="Grade" type="number" class="form-control" id="inputGrade" placeholder="Grade">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputMinGrade">Minimum Grade</label>
+        <input name="MinGrade" type="text" class="form-control" id="inputMinGrade" placeholder="Minimum Grade">
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="inputDepartment">Department</label>
+            <select name="departmentId" id="inputDepartment" class="form-control">
+                <option hidden disabled selected> -- select an option -- </option>
+                @foreach (var dept in Model)
+                {
+                    <option value=@dept.DepartmentId>@dept.DepartmentName</option>
+                }
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Add Course</button>
+</form>

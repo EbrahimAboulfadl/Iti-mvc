@@ -1,0 +1,43 @@
+﻿@model EditCourseViewModel
+@{
+    ViewData["Title"] = $"Edit {Model.Course.Name} Course";
+}
+<h1>Edit @Model.Course.Name</h1>
+<form action="/Courses/SaveCourse/@Model.Course.Id">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="inputName">Name</label>
+            <input name="name" class="form-control" id="inputName" value="@Model.Course.Name">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="inputGrade">Grade</label>
+            <input name="grade" type="number" class="form-control" id="inputGrade" Value=@Model.Course.Grade>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputMinGrade">Minimum Grade</label>
+        <input name="MinGrade" type="number" class="form-control" id="inputMinGrade" value=@Model.Course.MinGrade>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="inputState">State</label>
+            <select name="departmentId" id="inputState" class="form-control">
+                <option hidden disabled selected> -- select an option -- </option>
+                @foreach (var dept in Model.Departments)
+                {
+                   if( dept.DepartmentId != Model.Course.DepartmentId ){
+
+                       <option value=@dept.DepartmentId>@dept.DepartmentName</option>
+                   
+                   }
+                   else
+                    {
+                        <option selected value=@dept.DepartmentId>@dept.DepartmentName</option>
+                    }
+                }
+
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
