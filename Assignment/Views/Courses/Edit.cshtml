@@ -1,0 +1,40 @@
+﻿@model Course
+@{
+    ViewData["Title"] = $"Edit {Model.Name} Course";
+    SelectList deptList = new SelectList(ViewBag.departments, "DepartmentId", "DepartmentName");
+
+}
+<h1>Edit @Model.Name</h1>
+<form asp-action="Edit" asp-route-id = "@Model.Id" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Name"></label>
+            <input asp-for="Name" class="form-control" >
+            <span asp-validation-for="Name" class="badge badge-danger"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Grade"></label>
+            <input asp-for="Grade" type="number" step="0.01" class="form-control" >
+            <span asp-validation-for="Grade" class="badge badge-danger"></span>
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="MinGrade"></label>
+        <input asp-for="MinGrade" type="number" step="0.01" class="form-control">
+        <span asp-validation-for="MinGrade" class="badge badge-danger"></span>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label asp-for="DepartmentId"></label>
+            <select asp-items="deptList" asp-for="DepartmentId" class="form-control">
+            </select>
+            <span asp-validation-for="DepartmentId "class="badge badge-danger"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
+@section Scripts {
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+}

@@ -17,8 +17,5 @@ namespace Assignment.Models.Entities
         public int? CourseId { get; set; }
         public Course Course { get; set; }
 
-
-
-
     }
 }

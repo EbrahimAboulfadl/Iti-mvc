@@ -11,7 +11,7 @@ namespace Assignment.Controllers
     public class CoursesController : Controller
     {
 
-        static AppDbContext  context = new AppDbContext();
+        static AppDbContext context = new AppDbContext();
         List<DepartmentSelectionViewModel> departmentSelections = context.Departments
             .Select(x => 
                     new DepartmentSelectionViewModel() { DepartmentName = x.Name, DepartmentId = x.Id }
@@ -19,18 +19,44 @@ namespace Assignment.Controllers
 
         public IActionResult Index()
         {
-                List<Course> courses = context.Courses.Include(x=>x.Department).ToList();
+            List<Course> courses = context.Courses.Include(x=>x.Department).ToList();
 
-                return View(courses);
+            return View(courses);
+        }   
+        public IActionResult CheckGrade(decimal MinGrade, decimal Grade)
+        {
+            if (MinGrade > Grade) return Json(false);
+            return Json (true);
         }
 
-  
-        public IActionResult NewCourse() {
-        
-        return View(departmentSelections);
+        [HttpGet]
+        public IActionResult New() {
+        ViewBag.departments = departmentSelections;
+        return View();
         }
-        
-        public IActionResult DeleteCourse(int id ) {
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult New(Course course)
+        {
+            if (ModelState.IsValid)
+            {
+                if (course.DepartmentId != -1)
+                {
+                    context.Courses.Add(course);
+                    context.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                else {
+                    ModelState.AddModelError("DepartmentId","A course must be related to a department");
+                }
+     
+            }
+            ViewBag.departments = departmentSelections;
+            return View();
+
+        }
+
+        public IActionResult Delete(int id ) {
             Course courseToDelete = context.Courses.Find(id);
             context.Courses.Remove(courseToDelete);
             context.SaveChanges();
@@ -38,20 +64,13 @@ namespace Assignment.Controllers
         }
 
 
-        [HttpPost]
-        public IActionResult SaveNewCourse(Course course) {
-
-        context.Courses.Add(course);
-        context.SaveChanges();
-        return RedirectToAction("Index");   
-        }
-        public IActionResult EditCourse(int id) {
+        [HttpGet]
+        public IActionResult Edit(int id) {
             Course course = context.Courses.Include(x=>x.Department).FirstOrDefault(x=>x.Id == id);       
-            EditCourseViewModel viewModel = new() { Course = course ,Departments = departmentSelections};
-            if (viewModel.Course != null)
+            if (course != null)
             {
-
-                return View(viewModel);
+                ViewBag.departments = departmentSelections;
+                return View(course);
             }
             else
             {
@@ -61,7 +80,8 @@ namespace Assignment.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveCourse(int id , Course course) {
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id , Course course) {
 
             Course oldCourse = context.Courses.Find(id);
             if (oldCourse != null)

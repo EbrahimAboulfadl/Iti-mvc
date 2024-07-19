@@ -1,0 +1,27 @@
+﻿<h1>Add New Trainee</h1>
+<form action="/Trainees/SaveNewTrainee">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="inputName">Name</label>
+            <input name="name" class="form-control" id="inputName" placeholder="Trainee Name">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputAddress">Address</label>
+        <input name="address" type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="inputDepartmenet">Department</label>
+            <select name="departmentId" id="inputDepartmenet" class="form-control">
+                <option hidden disabled selected> -- select an option -- </option>
+                @foreach (var dept in ViewBag.departments)
+                {
+                    <option value=@dept.DepartmentId>@dept.DepartmentName</option>
+                }
+
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Trainee</button>
+</form>

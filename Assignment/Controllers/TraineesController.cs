@@ -10,25 +10,21 @@ namespace Assignment.Controllers
 {
     public class TraineesController : Controller
     {
+        AppDbContext context = new AppDbContext();
         public IActionResult Index()
         {
-            using (var context = new AppDbContext())
-            {
-
+       
                 List<Trainee> trainees = context.Trainees.Include(x=>x.Department).ToList();
 
                 return View(trainees);
-            }
+           
         }
 
         public IActionResult GetTrainee(int id)
         {
             Trainee trainee;
-            using (var context = new AppDbContext())
-            {
-
-                trainee = context.Trainees.Include(x => x.Department).FirstOrDefault(x => x.Id == id);
-            }
+            trainee = context.Trainees.Include(x => x.Department).FirstOrDefault(x => x.Id == id);
+            
 
             if (trainee != null)
             {
@@ -40,6 +36,65 @@ namespace Assignment.Controllers
 
             }
         }
+        public IActionResult NewTrainee() {
+
+            ViewData["departments"] = context.Departments.Select(x=>new DepartmentSelectionViewModel() {DepartmentId=x.Id,DepartmentName=x.Name}).ToList();
+            return View();
+        }
+        public IActionResult SaveNewTrainee(Trainee trainee) {
+        context.Trainees.Add(trainee);
+        context.SaveChanges();
+        return RedirectToAction("Index");     
+        }
+        public IActionResult EditTrainee(int id)
+        {
+            Trainee trainee = context.Trainees.Include(x => x.Department).FirstOrDefault(x => x.Id == id);
+            ViewData["departments"] = context.Departments.Select(x => new DepartmentSelectionViewModel() { DepartmentId = x.Id, DepartmentName = x.Name }).ToList();
+
+
+            if (trainee != null)
+            {
+
+                return View(trainee);
+            }
+            else
+            {
+                return View("Error", new ErrorViewModel());
+
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SaveTrainee(int id, Trainee trainee)
+        {
+
+            Trainee oldTrainee = context.Trainees.Find(id);
+            if (oldTrainee != null)
+            {
+                oldTrainee.Name = trainee.Name;
+                oldTrainee.DepartmentId = trainee.DepartmentId;
+                oldTrainee.Address = trainee.Address;
+                context.SaveChanges();
+                return RedirectToAction("Index");
+
+            }
+            else
+            {
+                return View("Error", new ErrorViewModel());
+            }
+
+        }
+        public IActionResult DeleteTrainee(int id)
+        {
+            Trainee traineeToDelete = context.Trainees.Find(id);
+            if (traineeToDelete != null)
+            {
+                context.Trainees.Remove(traineeToDelete);
+                context.SaveChanges();
+            }
+            return RedirectToAction("Index");
+        }
+
 
         public IActionResult AspGrade(int id)
         {

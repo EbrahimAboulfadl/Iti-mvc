@@ -1,0 +1,40 @@
+﻿@model Trainee
+@{
+    ViewData["Title"] = $"Edit {Model.Name} Course";
+}
+<h1>Edit @Model.Name</h1>
+<form action="/Trainees/SaveTrainee/@Model.Id" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="inputName">Name</label>
+            <input name="name" class="form-control" id="inputName" value="@Model.Name">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="inputAddress">Address</label>
+            <input name="Address" type="text" class="form-control" id="inputAddress" Value="@Model.Address">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="inputDepartment">Department</label>
+            <select name="departmentId" id="inputDepartment" class="form-control">
+                <option hidden disabled selected> -- select an option -- </option>
+                @foreach (var dept in ViewBag.departments)
+                {
+                    if (dept.DepartmentId != Model.DepartmentId)
+                    {
+
+                        <option value=@dept.DepartmentId>@dept.DepartmentName</option>
+
+                    }
+                    else
+                    {
+                        <option selected value=@dept.DepartmentId>@dept.DepartmentName</option>
+                    }
+                }
+
+            </select>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+</form>
