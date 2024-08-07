@@ -1,5 +1,6 @@
 ﻿using Assignment.Models;
 using Assignment.Models.Entities;
+using Assignment.Repository;
 using Assignment.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,19 @@ namespace Assignment.Controllers
 {
     public class InstructorsController : Controller
     {
-        AppDbContext context = new AppDbContext();
+        IInstructorRepository instructorRepository;
+        IDepartmentRepository departmentRepository;
+
+
+        public InstructorsController(IInstructorRepository _instructorRepository , IDepartmentRepository _departmentRepository) { 
+           instructorRepository = _instructorRepository;
+            departmentRepository = _departmentRepository;
+
+
+        }
         public IActionResult Index()
         {	
-				List<Instructor> instructors = context.Instructors.Include(x=>x.Department).ToList();
+				List<Instructor> instructors = instructorRepository.InstructorsWithDepartments();
 				return View(instructors);
         }
         public IActionResult GetInstructor(int id)
@@ -21,7 +31,7 @@ namespace Assignment.Controllers
             Instructor instructor;
           
 
-               instructor= context.Instructors.Include(x=>x.Department).FirstOrDefault(x => x.Id == id);
+               instructor= instructorRepository.InstructorsWithDepartments().FirstOrDefault(x => x.Id == id);
             
 
             if (instructor != null)
@@ -33,19 +43,15 @@ namespace Assignment.Controllers
             }
         }
 
-        public IActionResult NewInstructor() {
-            List<DepartmentSelectionViewModel> departments = new List<DepartmentSelectionViewModel>();
-       
-            departments = context.Departments.Select(x => new DepartmentSelectionViewModel() {DepartmentId = x.Id ,DepartmentName = x.Name }).ToList();
+        public IActionResult NewInstructor() {         
             
-            
-        return View(departments);
+        return View(departmentRepository.GetDepartmentSelectionViewModels());
         }
         [HttpPost]
-        public IActionResult SaveInstuctor(Instructor instructor) { 
-      
-            context.Instructors.Add(instructor);
-            context.SaveChanges();            
+        public IActionResult SaveInstuctor(Instructor instructor) {
+
+            if (ModelState.IsValid)
+            instructorRepository.Add(instructor);        
             
             return RedirectToAction("Index");
         

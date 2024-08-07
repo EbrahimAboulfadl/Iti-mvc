@@ -20,15 +20,65 @@
     </tr>
     @foreach (var course in Model)
     {
+        <div>
         <tr>
             <td>@course.Name</td>
             <td>@course.Grade</td>
             <td>@course.MinGrade</td>
-            <td>@course.Department.Name</td>
-            <td><a asp-action ="Edit" asp-route-id ="@course.Id" class="btn btn-light">Edit</a>
+            <td>
+
+                <a style="text-decoration:none; position:relative;" href="#" onmouseover="GetDetails(@course.DepartmentId , @course.Id)"
+                   onmouseout="RemoveContent(@course.Id)">
+                        @course.Department.Name
+
+                    <div id="departmentDetails-@course.Id" 
+                        style="position:absolute; top : -110px; right:-230px; background-color: white">
+                       
+                     </div>
+            
+            </a>
+                    
+            
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-light">Edit</a>
                 <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-danger">Delete</a>
             </td>
-        </tr>
+             @*    <tr style="position :absolute; right:0px" id="departmentDetails-@course.Id"></tr> *@
+
+            </tr>
+       </div> 
 
     }
 </table>
+@section Scripts {
+    <script>
+        function RemoveContent(elementId) {
+            // Get the element by its ID
+            var element = document.getElementById("departmentDetails-"+elementId);
+
+            // Check if the element exists
+            if (element) {
+                // Clear the content of the element
+                element.innerHTML = '';
+            } else {
+                console.error('Element with ID ' + elementId + ' not found.');
+            }
+        }
+
+        function GetDetails(deptId,courseId) {
+
+            event.preventDefault()
+            $.ajax({
+                url: "/Departments/DepartmentDetails/" + deptId ,
+
+                success: function (result) {
+                    $("#departmentDetails-" + courseId).html(result);
+                }
+            });
+
+        }
+
+    </script>
+
+}

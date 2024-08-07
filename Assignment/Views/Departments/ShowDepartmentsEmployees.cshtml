@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Department>
+@{
+    ViewData["Title"] = "Show Departments Employees";
+    SelectList deptList = new(Model, "Id", "Name");
+}
+
+<h1>ShowDepartmentsEmployees</h1>
+<label for="depts" >Department</label>
+<select id="depts" name="depts" asp-items="deptList" class="form-control" onchange="getEmployees()">
+    <option value="-1 ">-- Select An Option --</option>
+</select>
+
+<label>Instructors</label>
+
+<select id="emps" name="emps" class="form form-control" >
+    <option value="-1 ">-- Select An Option --</option>
+</select>
+
+
+
+@section Scripts {
+
+    <script>
+
+    function getEmployees() { 
+       document.getElementById("emps").innerHTML=``
+        var deptId = document.getElementById("depts").value 
+        $.ajax({
+        url:"/Departments/GetdepartmentEmployees/"+deptId,
+            success: (result) => { 
+                for (let emp of result) {
+                    document.getElementById("emps").innerHTML += `<option value= ${emp.id}> ${emp.name} </option>`
+
+                }
+               
+            }
+        
+        })
+    
+    }
+
+</script>
+
+}

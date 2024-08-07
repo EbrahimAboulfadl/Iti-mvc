@@ -14,9 +14,9 @@ namespace Assignment.Models.Entities
         [Range(40, 100)]
 
         public decimal Grade { get; set; }
-
         [Range(20,50)]
         [Remote("CheckGrade" ,"Courses",AdditionalFields ="Grade" ,ErrorMessage ="The Min Grade Can't be bigger than Grade")]
+        [Display(Name = "Minimum Grade")]
         public decimal MinGrade { get; set; }
 
         [ForeignKey("Department")]

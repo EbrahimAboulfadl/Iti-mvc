@@ -1,5 +1,6 @@
 ﻿using Assignment.Models;
 using Assignment.Models.Entities;
+using Assignment.Repository;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +10,41 @@ namespace Assignment.Controllers
     public class DepartmentsController : Controller
     {
 
-        AppDbContext context = new AppDbContext();
+        IDepartmentRepository departmentRepository;
+        IInstructorRepository instructorRepository;
+
+        public DepartmentsController(IDepartmentRepository _departmentRepository , IInstructorRepository _instructorRepository) {
+        
+            departmentRepository = _departmentRepository;
+            instructorRepository = _instructorRepository;
+        }
 
         #region Validations
         public IActionResult CheckName(string Manager) {
-            if (context.Departments.FirstOrDefault(d => d.Manager == Manager) != null) return Json(false);
+            if (departmentRepository.GetAll().FirstOrDefault(d => d.Manager == Manager) != null) return Json(false);
             return Json(true);
         
         }
         #endregion
+
+        public IActionResult DepartmentDetails(int id) {
+            var dept =departmentRepository.GetById(id);
+            return PartialView("DepartmentDetailsPartial",dept);
+        }
+
+        public IActionResult ShowDepartmentsEmployees() {
+
+            var depts = departmentRepository.GetAll();
+            return View(depts);
+        }
+        public IActionResult GetdepartmentEmployees(int id) { 
+        
+        var emps = instructorRepository.GetAll().Where(x=>x.DepartmentId==id).ToList();
+            return Json(emps);
+        }
         public IActionResult Index()
         {
-            List <Department> departments = context.Departments.ToList();
+            List <Department> departments =departmentRepository.GetAll();
             return View(departments);
         }
 
@@ -37,8 +61,7 @@ namespace Assignment.Controllers
         {
             if (ModelState.IsValid)
             {
-                context.Departments.Add(department);
-                context.SaveChanges();
+               departmentRepository.Add(department);
                 return RedirectToAction("Index");
             }
             else
@@ -50,19 +73,17 @@ namespace Assignment.Controllers
         [HttpGet]
         public IActionResult Edit(int id )
         {
-            var department = context.Departments.Find(id);
+            var department = departmentRepository.GetById(id);
             return View(department);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id ,Department department)
         {
-            var departmentToEdit = context.Departments.Find(id);
-            if (departmentToEdit != null && ModelState.IsValid)
+            
+            if ( ModelState.IsValid)
             {
-                departmentToEdit.Name = department.Name;
-                departmentToEdit.Manager = department.Manager;
-                context.SaveChanges();
+                departmentRepository.Edit(id, department);
                 return RedirectToAction("Index");
             }
 
@@ -71,15 +92,12 @@ namespace Assignment.Controllers
 
         public IActionResult Delete(int id)
         {
-            Department deptToDelete = context.Departments.Find(id);
-            if (deptToDelete != null) {
-            
-                context.Remove(deptToDelete);
-                context.SaveChanges();
+            try  {
+
+                departmentRepository.Delete(id);
                 return RedirectToAction("Index");
             }
-
-            else
+            catch
             {
                 return View("New");
             }

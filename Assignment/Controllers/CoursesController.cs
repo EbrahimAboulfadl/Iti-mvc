@@ -1,27 +1,24 @@
 ﻿using Assignment.Models;
 using Assignment.Models.Entities;
-using Assignment.ViewModels;
+using Assignment.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Assignment.Controllers
 {
     public class CoursesController : Controller
     {
+        ICourseRepository courseRepository;
+        IDepartmentRepository departmentRepository;
 
-        static AppDbContext context = new AppDbContext();
-        List<DepartmentSelectionViewModel> departmentSelections = context.Departments
-            .Select(x => 
-                    new DepartmentSelectionViewModel() { DepartmentName = x.Name, DepartmentId = x.Id }
-                    ).ToList();
+        public CoursesController(ICourseRepository _courseRepository, IDepartmentRepository _departmentRepository) { 
+        courseRepository = _courseRepository;
+        departmentRepository = _departmentRepository;
+        
+        }
 
         public IActionResult Index()
         {
-            List<Course> courses = context.Courses.Include(x=>x.Department).ToList();
-
-            return View(courses);
+            return View(courseRepository.CoursesWithDepartments());
         }   
         public IActionResult CheckGrade(decimal MinGrade, decimal Grade)
         {
@@ -31,7 +28,7 @@ namespace Assignment.Controllers
 
         [HttpGet]
         public IActionResult New() {
-        ViewBag.departments = departmentSelections;
+        ViewBag.departments = departmentRepository.GetDepartmentSelectionViewModels();
         return View();
         }
         [HttpPost]
@@ -42,8 +39,7 @@ namespace Assignment.Controllers
             {
                 if (course.DepartmentId != -1)
                 {
-                    context.Courses.Add(course);
-                    context.SaveChanges();
+                    courseRepository.Add(course);
                     return RedirectToAction("Index");
                 }
                 else {
@@ -51,25 +47,23 @@ namespace Assignment.Controllers
                 }
      
             }
-            ViewBag.departments = departmentSelections;
+            ViewBag.departments = departmentRepository.GetDepartmentSelectionViewModels();
             return View();
 
         }
 
         public IActionResult Delete(int id ) {
-            Course courseToDelete = context.Courses.Find(id);
-            context.Courses.Remove(courseToDelete);
-            context.SaveChanges();
+            courseRepository.Delete(id);
             return RedirectToAction("Index");
         }
 
 
         [HttpGet]
         public IActionResult Edit(int id) {
-            Course course = context.Courses.Include(x=>x.Department).FirstOrDefault(x=>x.Id == id);       
+            Course course = courseRepository.GetById(id);       
             if (course != null)
             {
-                ViewBag.departments = departmentSelections;
+                ViewBag.departments = departmentRepository.GetDepartmentSelectionViewModels();
                 return View(course);
             }
             else
@@ -83,26 +77,22 @@ namespace Assignment.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id , Course course) {
 
-            Course oldCourse = context.Courses.Find(id);
-            if (oldCourse != null)
+            try
             {
-                oldCourse.Name = course.Name;
-                oldCourse.DepartmentId = course.DepartmentId;
-                oldCourse.Grade = course.Grade;
-                oldCourse.MinGrade = course.MinGrade;
-                context.SaveChanges();
+                courseRepository.Edit(id, course);
                 return RedirectToAction("Index");
 
             }
-            else { 
-            return View("Error", new ErrorViewModel());
+            catch { 
+                return View("Error", new ErrorViewModel());
+
             }
+          
             
         }
         public IActionResult GetCourse(int id)
         {
-            Course course;
-            course = context.Courses.Include(x=>x.Department).FirstOrDefault(x => x.Id == id);
+            Course course = courseRepository.GetById(id);
 
             if (course != null)
             {

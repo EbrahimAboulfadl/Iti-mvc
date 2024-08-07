@@ -1,6 +1,8 @@
 ﻿using Assignment.Models;
 using Assignment.Models.Entities;
+using Assignment.Repository;
 using Assignment.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -8,22 +10,26 @@ using System.Linq;
 
 namespace Assignment.Controllers
 {
+    [Authorize]
     public class TraineesController : Controller
     {
-        AppDbContext context = new AppDbContext();
+       ITraineeRepository traineeRepository;
+       IDepartmentRepository departmentRepository;
+        public TraineesController(ITraineeRepository _traineeRepository ,IDepartmentRepository _departmentRepository) { 
+                traineeRepository = _traineeRepository;
+            departmentRepository = _departmentRepository;
+        }
         public IActionResult Index()
         {
-       
-                List<Trainee> trainees = context.Trainees.Include(x=>x.Department).ToList();
 
-                return View(trainees);
+                return View(traineeRepository.TraineesWithDepartments());
            
         }
 
         public IActionResult GetTrainee(int id)
         {
             Trainee trainee;
-            trainee = context.Trainees.Include(x => x.Department).FirstOrDefault(x => x.Id == id);
+            trainee = traineeRepository.TraineesWithDepartments().FirstOrDefault(x => x.Id == id);
             
 
             if (trainee != null)
@@ -38,18 +44,19 @@ namespace Assignment.Controllers
         }
         public IActionResult NewTrainee() {
 
-            ViewData["departments"] = context.Departments.Select(x=>new DepartmentSelectionViewModel() {DepartmentId=x.Id,DepartmentName=x.Name}).ToList();
+            ViewData["departments"] = departmentRepository.GetDepartmentSelectionViewModels();
             return View();
         }
         public IActionResult SaveNewTrainee(Trainee trainee) {
-        context.Trainees.Add(trainee);
-        context.SaveChanges();
+      
+
+        traineeRepository.Add(trainee);
         return RedirectToAction("Index");     
         }
         public IActionResult EditTrainee(int id)
         {
-            Trainee trainee = context.Trainees.Include(x => x.Department).FirstOrDefault(x => x.Id == id);
-            ViewData["departments"] = context.Departments.Select(x => new DepartmentSelectionViewModel() { DepartmentId = x.Id, DepartmentName = x.Name }).ToList();
+            Trainee trainee = traineeRepository.TraineesWithDepartments().FirstOrDefault(x => x.Id == id);
+            ViewData["departments"] = departmentRepository.GetDepartmentSelectionViewModels();
 
 
             if (trainee != null)
@@ -68,17 +75,14 @@ namespace Assignment.Controllers
         public IActionResult SaveTrainee(int id, Trainee trainee)
         {
 
-            Trainee oldTrainee = context.Trainees.Find(id);
-            if (oldTrainee != null)
+            
+            try 
             {
-                oldTrainee.Name = trainee.Name;
-                oldTrainee.DepartmentId = trainee.DepartmentId;
-                oldTrainee.Address = trainee.Address;
-                context.SaveChanges();
+                traineeRepository.Edit(id, trainee);
                 return RedirectToAction("Index");
 
             }
-            else
+            catch
             {
                 return View("Error", new ErrorViewModel());
             }
@@ -86,42 +90,46 @@ namespace Assignment.Controllers
         }
         public IActionResult DeleteTrainee(int id)
         {
-            Trainee traineeToDelete = context.Trainees.Find(id);
-            if (traineeToDelete != null)
+
+            try
             {
-                context.Trainees.Remove(traineeToDelete);
-                context.SaveChanges();
+                traineeRepository.Delete(id);   
+                return RedirectToAction("Index");
+
             }
-            return RedirectToAction("Index");
+            catch { 
+                 return RedirectToAction("Index");
+
+            }
         }
 
 
-        public IActionResult AspGrade(int id)
-        {
+        //public IActionResult AspGrade(int id)
+        //{
             
-            CourseResult result;
-            using (var context = new AppDbContext())
-            {
+        //    CourseResult result;
+        //    using (var context = new AppDbContext())
+        //    {
 
-                result = context.CourseResults.Include(x => x.Trainee).Include(x=>x.Course).FirstOrDefault(x=>x.TraineeId == id && x.CourseId==1);
-            }
-            if (result != null)
-            {
-            bool isSucceeded = result.Grade >= result.Course.MinGrade;
-            TraineeGradeViewModel traineeGradeViewModel = new() {
-                TraineeName = result.Trainee.Name,
-                TraineeGrade = result.Grade,
-                CourseName = result.Course.Name,
-                Status = isSucceeded ? "succeeded" : "Failed",
-                Color = isSucceeded ? "green" : "red"
-            };
-                return View("AspGrade", traineeGradeViewModel);
-            }
-            else
-            {
-                return View("Error", new ErrorViewModel());
+        //        result = context.CourseResults.Include(x => x.Trainee).Include(x=>x.Course).FirstOrDefault(x=>x.TraineeId == id && x.CourseId==1);
+        //    }
+        //    if (result != null)
+        //    {
+        //    bool isSucceeded = result.Grade >= result.Course.MinGrade;
+        //    TraineeGradeViewModel traineeGradeViewModel = new() {
+        //        TraineeName = result.Trainee.Name,
+        //        TraineeGrade = result.Grade,
+        //        CourseName = result.Course.Name,
+        //        Status = isSucceeded ? "succeeded" : "Failed",
+        //        Color = isSucceeded ? "green" : "red"
+        //    };
+        //        return View("AspGrade", traineeGradeViewModel);
+        //    }
+        //    else
+        //    {
+        //        return View("Error", new ErrorViewModel());
 
-            }
-        }
+        //    }
+        //}
     }
 }
